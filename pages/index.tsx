@@ -485,7 +485,7 @@ const Home: React.FC<HomeProps> = ({
 
     const newConversation: Conversation = {
       id: uuidv4(),
-      name: `${t('New Conversation')}`,
+      name: `${t('گفت و گو جدید')}`,
       messages: [],
       model: lastConversation?.model || {
         id: OpenAIModels[defaultModelId].id,
@@ -523,7 +523,7 @@ const Home: React.FC<HomeProps> = ({
     } else {
       setSelectedConversation({
         id: uuidv4(),
-        name: 'New conversation',
+        name: 'گفت و گو جدید ',
         messages: [],
         model: OpenAIModels[defaultModelId],
         prompt: DEFAULT_SYSTEM_PROMPT,
@@ -557,7 +557,7 @@ const Home: React.FC<HomeProps> = ({
 
     setSelectedConversation({
       id: uuidv4(),
-      name: 'New conversation',
+      name: 'گفت و گو جدید ',
       messages: [],
       model: OpenAIModels[defaultModelId],
       prompt: DEFAULT_SYSTEM_PROMPT,
@@ -726,7 +726,7 @@ const Home: React.FC<HomeProps> = ({
     } else {
       setSelectedConversation({
         id: uuidv4(),
-        name: 'New conversation',
+        name: 'گفت و گو جدید ',
         messages: [],
         model: OpenAIModels[defaultModelId],
         prompt: DEFAULT_SYSTEM_PROMPT,

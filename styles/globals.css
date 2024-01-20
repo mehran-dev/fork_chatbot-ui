@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  * {
+    font-family: var(--font-yekanBakh);
+  }
+
+  html {
+    background: #202123;
+
+    font-family: var(--font-yekanBakh) !important ;
+  }
+  html:lang(en) {
+    font-family: var(--font-roboto) !important ;
+  }
+}
+
 ::-webkit-scrollbar-track {
   background-color: transparent;
 }
@@ -26,10 +41,6 @@
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
-}
-
-html {
-  background: #202123;
 }
 
 @media (max-width: 720px) {

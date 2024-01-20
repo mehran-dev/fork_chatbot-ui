@@ -1,7 +1,7 @@
 {
   "New folder": "پوشه جدید",
   "New chat": "چت جدید",
-  "No conversations.": "无对话",
+  "No conversations.": "چت موجود نیست ",
   "Search conversations...": "شروع گف و گو جدید ...",
   "OpenAI API Key": "کلید اوپن ای آی ",
   "Import data": "وارد کردن دیتا ",
@@ -9,5 +9,6 @@
   "Clear conversations": "پاک کردن گفت و گو ",
   "Export data": "خروجی گرفتن دیتا ",
   "Dark mode": "زمینه تیره ",
-  "Light mode": "زمینه روشن "
+  "Light mode": "زمینه روشن ",
+  "Plugin Keys": "کلید پلاگین "
 }
