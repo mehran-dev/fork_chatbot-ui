@@ -1,0 +1,13 @@
+{
+  "New prompt": "پرامت جدید ",
+  "New folder": "پوشه جدید",
+  "No prompts.": "无提示词",
+  "Search prompts...": "جست و جو پرامپ ها ...",
+  "Name": "نام",
+  "A name for your prompt.": "نام پرامپ شما ",
+  "Description": "توضیح ",
+  "A description for your prompt.": "توضیحی برای پرامپ شما",
+  "Prompt": "پرامپ ",
+  "Prompt content. Use {{}} to denote a variable. Ex: {{name}} is a {{adjective}} {{noun}}": "提示内容。使用 {{}} 表示一个变量。例如：{{name}} 是一个 {{adjective}} {{noun}}",
+  "Save": "ذخیره"
+}

@@ -50,6 +50,7 @@ const Home: React.FC<HomeProps> = ({
   defaultModelId,
 }) => {
   const { t } = useTranslation('chat');
+  const { i18n } = useTranslation();
 
   // STATE ----------------------------------------------
 
@@ -73,7 +74,7 @@ const Home: React.FC<HomeProps> = ({
   const [showSidebar, setShowSidebar] = useState<boolean>(true);
 
   const [prompts, setPrompts] = useState<Prompt[]>([]);
-  const [showPromptbar, setShowPromptbar] = useState<boolean>(true);
+  const [showPromptbar, setShowPromptbar] = useState<boolean>(false);
 
   // REFS ----------------------------------------------
 
@@ -737,8 +738,8 @@ const Home: React.FC<HomeProps> = ({
   return (
     <>
       <Head>
-        <title>Chatbot UI</title>
-        <meta name="description" content="ChatGPT but better." />
+        <title>چتبات هما </title>
+        <meta name="description" content="homa , ChatGPT but better." />
         <meta
           name="viewport"
           content="height=device-height ,width=device-width, initial-scale=1, user-scalable=no"
@@ -784,22 +785,22 @@ const Home: React.FC<HomeProps> = ({
                 />
 
                 <button
-                  className="fixed top-5 left-[270px] z-50 h-7 w-7 hover:text-gray-400 dark:text-white dark:hover:text-gray-300 sm:top-0.5 sm:left-[270px] sm:h-8 sm:w-8 sm:text-neutral-700"
+                  className="fixed top-5 right-[270px] z-50 h-7 w-7 hover:text-gray-400 ltr:left-[270px] dark:text-white dark:hover:text-gray-300 sm:top-0.5 sm:right-[270px] sm:h-8   sm:w-8 sm:text-neutral-700 ltr:sm:left-[270px]"
                   onClick={handleToggleChatbar}
                 >
-                  <IconArrowBarLeft />
+                  <IconArrowBarRight className="bg-yellow-500" />
                 </button>
                 <div
                   onClick={handleToggleChatbar}
-                  className="absolute top-0 left-0 z-10 h-full w-full bg-black opacity-70 sm:hidden"
+                  className="absolute top-0 right-0 z-10 h-full w-full bg-black opacity-70 sm:hidden"
                 ></div>
               </div>
             ) : (
               <button
-                className="fixed top-2.5 left-4 z-50 h-7 w-7 text-white hover:text-gray-400 dark:text-white dark:hover:text-gray-300 sm:top-0.5 sm:left-4 sm:h-8 sm:w-8 sm:text-neutral-700"
+                className="fixed top-2.5 right-4 z-50 h-7 w-7 text-white hover:text-gray-400 dark:text-white dark:hover:text-gray-300 sm:top-0.5 sm:left-4 sm:h-8 sm:w-8 sm:text-neutral-700"
                 onClick={handleToggleChatbar}
               >
-                <IconArrowBarRight />
+                <IconArrowBarLeft className="bg-red-500" />
               </button>
             )}
 
@@ -821,7 +822,7 @@ const Home: React.FC<HomeProps> = ({
               />
             </div>
 
-            {showPromptbar ? (
+            {/* {showPromptbar ? (
               <div>
                 <Promptbar
                   prompts={prompts}
@@ -846,21 +847,31 @@ const Home: React.FC<HomeProps> = ({
               </div>
             ) : (
               <button
-                className="fixed top-2.5 right-4 z-50 h-7 w-7 text-white hover:text-gray-400 dark:text-white dark:hover:text-gray-300 sm:top-0.5 sm:right-4 sm:h-8 sm:w-8 sm:text-neutral-700"
+                className="fixed top-2.5 left-4 z-50 h-7 w-7 text-white hover:text-gray-400 dark:text-white dark:hover:text-gray-300 sm:top-0.5 sm:left-4 sm:h-8 sm:w-8 sm:text-neutral-700"
                 onClick={handleTogglePromptbar}
               >
                 <IconArrowBarLeft />
               </button>
-            )}
+            )} */}
           </div>
         </main>
       )}
+      {/* <button
+        className="bg-green-800 text-white"
+        onClick={() => {
+          i18n.changeLanguage('fa');
+        }}
+      >
+        TEST LANG
+      </button> */}
     </>
   );
 };
 export default Home;
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+  console.log('locale', locale);
+
   const defaultModelId =
     (process.env.DEFAULT_MODEL &&
       Object.values(OpenAIModelID).includes(
@@ -883,7 +894,7 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
       serverSideApiKeyIsSet: !!process.env.OPENAI_API_KEY,
       defaultModelId,
       serverSidePluginKeysSet,
-      ...(await serverSideTranslations(locale ?? 'en', [
+      ...(await serverSideTranslations(locale ?? 'fa', [
         'common',
         'chat',
         'sidebar',
