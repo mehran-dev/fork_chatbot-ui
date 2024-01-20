@@ -87,250 +87,223 @@ const Home: React.FC<HomeProps> = ({
     deleteCount = 0,
     plugin: Plugin | null = null,
   ) => {
-    if (selectedConversation) {
-      let updatedConversation: Conversation;
+    if (!selectedConversation) {
+      return;
+    }
+    let updatedConversation: Conversation;
 
-      if (deleteCount) {
-        const updatedMessages = [...selectedConversation.messages];
-        for (let i = 0; i < deleteCount; i++) {
-          updatedMessages.pop();
-        }
-
-        updatedConversation = {
-          ...selectedConversation,
-          messages: [...updatedMessages, message],
-        };
-      } else {
-        updatedConversation = {
-          ...selectedConversation,
-          messages: [...selectedConversation.messages, message],
-        };
+    if (deleteCount) {
+      const updatedMessages = [...selectedConversation.messages];
+      for (let i = 0; i < deleteCount; i++) {
+        updatedMessages.pop();
       }
 
-      setSelectedConversation(updatedConversation);
-      setLoading(true);
-      setMessageIsStreaming(true);
-
-      const chatBody: ChatBody = {
-        model: updatedConversation.model,
-        messages: updatedConversation.messages,
-        key: apiKey,
-        prompt: updatedConversation.prompt,
+      updatedConversation = {
+        ...selectedConversation,
+        messages: [...updatedMessages, message],
       };
+    } else {
+      updatedConversation = {
+        ...selectedConversation,
+        messages: [...selectedConversation.messages, message],
+      };
+    }
 
-      const endpoint = getEndpoint(plugin);
-      let body;
+    setSelectedConversation(updatedConversation);
+    setLoading(true);
+    setMessageIsStreaming(true);
 
-      if (!plugin) {
-        body = JSON.stringify(chatBody);
-      } else {
-        body = JSON.stringify({
-          ...chatBody,
-          googleAPIKey: pluginKeys
-            .find((key) => key.pluginId === 'google-search')
-            ?.requiredKeys.find((key) => key.key === 'GOOGLE_API_KEY')?.value,
-          googleCSEId: pluginKeys
-            .find((key) => key.pluginId === 'google-search')
-            ?.requiredKeys.find((key) => key.key === 'GOOGLE_CSE_ID')?.value,
-        });
-      }
+    const chatBody: ChatBody = {
+      model: updatedConversation.model,
+      messages: updatedConversation.messages,
+      key: apiKey,
+      prompt: updatedConversation.prompt,
+    };
 
-      const controller = new AbortController();
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-        body,
+    const endpoint = getEndpoint(plugin);
+    let body;
+
+    if (!plugin) {
+      body = JSON.stringify(chatBody);
+    } else {
+      body = JSON.stringify({
+        ...chatBody,
+        googleAPIKey: pluginKeys
+          .find((key) => key.pluginId === 'google-search')
+          ?.requiredKeys.find((key) => key.key === 'GOOGLE_API_KEY')?.value,
+        googleCSEId: pluginKeys
+          .find((key) => key.pluginId === 'google-search')
+          ?.requiredKeys.find((key) => key.key === 'GOOGLE_CSE_ID')?.value,
       });
+    }
 
-      if (!response.ok) {
-        setLoading(false);
-        setMessageIsStreaming(false);
-        toast.error(response.statusText);
-        return;
-      }
+    const controller = new AbortController();
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+      body,
+    });
 
-      const data = response.body;
+    if (!response.ok) {
+      setLoading(false);
+      setMessageIsStreaming(false);
+      toast.error(response.statusText);
+      return;
+    }
 
-      if (!data) {
-        setLoading(false);
-        setMessageIsStreaming(false);
-        return;
-      }
+    const data = response.body;
 
-      if (!plugin) {
-        if (updatedConversation.messages.length === 1) {
-          const { content } = message;
-          const customName =
-            content.length > 30 ? content.substring(0, 30) + '...' : content;
+    if (!data) {
+      setLoading(false);
+      setMessageIsStreaming(false);
+      return;
+    }
 
-          updatedConversation = {
-            ...updatedConversation,
-            name: customName,
-          };
-        }
-
-        setLoading(false);
-
-        const reader = data.getReader();
-        const decoder = new TextDecoder();
-        let done = false;
-        let isFirst = true;
-        let text = '';
-
-        while (!done) {
-          if (stopConversationRef.current === true) {
-            controller.abort();
-            done = true;
-            break;
-          }
-          const { value, done: doneReading } = await reader.read();
-          done = doneReading;
-          const chunkValue = decoder.decode(value);
-
-          text += chunkValue;
-
-          if (isFirst) {
-            isFirst = false;
-            const updatedMessages: Message[] = [
-              ...updatedConversation.messages,
-              { role: 'assistant', content: chunkValue },
-            ];
-
-            updatedConversation = {
-              ...updatedConversation,
-              messages: updatedMessages,
-            };
-
-            setSelectedConversation(updatedConversation);
-          } else {
-            const updatedMessages: Message[] = updatedConversation.messages.map(
-              (message, index) => {
-                if (index === updatedConversation.messages.length - 1) {
-                  return {
-                    ...message,
-                    content: text,
-                  };
-                }
-
-                return message;
-              },
-            );
-
-            updatedConversation = {
-              ...updatedConversation,
-              messages: updatedMessages,
-            };
-
-            setSelectedConversation(updatedConversation);
-          }
-        }
-
-        saveConversation(updatedConversation);
-
-        const updatedConversations: Conversation[] = conversations.map(
-          (conversation) => {
-            if (conversation.id === selectedConversation.id) {
-              return updatedConversation;
-            }
-
-            return conversation;
-          },
-        );
-
-        if (updatedConversations.length === 0) {
-          updatedConversations.push(updatedConversation);
-        }
-
-        setConversations(updatedConversations);
-        saveConversations(updatedConversations);
-
-        setMessageIsStreaming(false);
-      } else {
-        const { answer } = await response.json();
-
-        const updatedMessages: Message[] = [
-          ...updatedConversation.messages,
-          { role: 'assistant', content: answer },
-        ];
+    if (!plugin) {
+      if (updatedConversation.messages.length === 1) {
+        const { content } = message;
+        const customName =
+          content.length > 30 ? content.substring(0, 30) + '...' : content;
 
         updatedConversation = {
           ...updatedConversation,
-          messages: updatedMessages,
+          name: customName,
         };
-
-        setSelectedConversation(updatedConversation);
-        saveConversation(updatedConversation);
-
-        const updatedConversations: Conversation[] = conversations.map(
-          (conversation) => {
-            if (conversation.id === selectedConversation.id) {
-              return updatedConversation;
-            }
-
-            return conversation;
-          },
-        );
-
-        if (updatedConversations.length === 0) {
-          updatedConversations.push(updatedConversation);
-        }
-
-        setConversations(updatedConversations);
-        saveConversations(updatedConversations);
-
-        setLoading(false);
-        setMessageIsStreaming(false);
       }
+
+      setLoading(false);
+
+      const reader = data.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let isFirst = true;
+      let text = '';
+
+      while (!done) {
+        if (stopConversationRef.current === true) {
+          controller.abort();
+          done = true;
+          break;
+        }
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+
+        text += chunkValue;
+
+        if (isFirst) {
+          isFirst = false;
+          const updatedMessages: Message[] = [
+            ...updatedConversation.messages,
+            { role: 'assistant', content: chunkValue },
+          ];
+
+          updatedConversation = {
+            ...updatedConversation,
+            messages: updatedMessages,
+          };
+
+          setSelectedConversation(updatedConversation);
+        } else {
+          const updatedMessages: Message[] = updatedConversation.messages.map(
+            (message, index) => {
+              if (index === updatedConversation.messages.length - 1) {
+                return {
+                  ...message,
+                  content: text,
+                };
+              }
+
+              return message;
+            },
+          );
+
+          updatedConversation = {
+            ...updatedConversation,
+            messages: updatedMessages,
+          };
+
+          setSelectedConversation(updatedConversation);
+        }
+      }
+
+      saveConversation(updatedConversation);
+
+      const updatedConversations: Conversation[] = conversations.map(
+        (conversation) => {
+          if (conversation.id === selectedConversation.id) {
+            return updatedConversation;
+          }
+
+          return conversation;
+        },
+      );
+
+      if (updatedConversations.length === 0) {
+        updatedConversations.push(updatedConversation);
+      }
+
+      setConversations(updatedConversations);
+      saveConversations(updatedConversations);
+
+      setMessageIsStreaming(false);
+    } else {
+      const { answer } = await response.json();
+
+      const updatedMessages: Message[] = [
+        ...updatedConversation.messages,
+        { role: 'assistant', content: answer },
+      ];
+
+      updatedConversation = {
+        ...updatedConversation,
+        messages: updatedMessages,
+      };
+
+      setSelectedConversation(updatedConversation);
+      saveConversation(updatedConversation);
+
+      const updatedConversations: Conversation[] = conversations.map(
+        (conversation) => {
+          if (conversation.id === selectedConversation.id) {
+            return updatedConversation;
+          }
+
+          return conversation;
+        },
+      );
+
+      if (updatedConversations.length === 0) {
+        updatedConversations.push(updatedConversation);
+      }
+
+      setConversations(updatedConversations);
+      saveConversations(updatedConversations);
+
+      setLoading(false);
+      setMessageIsStreaming(false);
     }
   };
 
   // FETCH MODELS ----------------------------------------------
 
   const fetchModels = async (key: string) => {
-    //xxxxxxx
-    return true;
-    const error = {
-      title: t('Error fetching models.'),
-      code: null,
-      messageLines: [
-        t(
-          'Make sure your OpenAI API key is set in the bottom left of the sidebar.',
-        ),
-        t('If you completed this step, OpenAI may be experiencing issues.'),
-      ],
-    } as ErrorMessage;
-
-    const response = await fetch('/api/models', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        key,
-      }),
+    const response = Promise.resolve(() => {
+      //await fetch('/api/models', {}
+      return [
+        {
+          id: 'string',
+          name: 'string',
+          maxLength: 123, // maximum length of a message
+          tokenLimit: 123,
+        },
+      ];
     });
 
-    if (!response.ok) {
-      try {
-        const data = await response.json();
-        Object.assign(error, {
-          code: data.error?.code,
-          messageLines: [data.error?.message],
-        });
-      } catch (e) {}
-      setModelError(error);
-      return;
-    }
-
-    const data = await response.json();
-
-    if (!data) {
-      setModelError(error);
-      return;
-    }
+    const data = await response;
 
     setModels(data);
     setModelError(null);
@@ -485,7 +458,7 @@ const Home: React.FC<HomeProps> = ({
 
     const newConversation: Conversation = {
       id: uuidv4(),
-      name: `${t('گفت و گو جدید')}`,
+      name: `${t('گفتوگو جدید')}`,
       messages: [],
       model: lastConversation?.model || {
         id: OpenAIModels[defaultModelId].id,
@@ -523,7 +496,7 @@ const Home: React.FC<HomeProps> = ({
     } else {
       setSelectedConversation({
         id: uuidv4(),
-        name: 'گفت و گو جدید ',
+        name: 'گفتوگو جدید ',
         messages: [],
         model: OpenAIModels[defaultModelId],
         prompt: DEFAULT_SYSTEM_PROMPT,
@@ -557,7 +530,7 @@ const Home: React.FC<HomeProps> = ({
 
     setSelectedConversation({
       id: uuidv4(),
-      name: 'گفت و گو جدید ',
+      name: 'گفتوگو جدید ',
       messages: [],
       model: OpenAIModels[defaultModelId],
       prompt: DEFAULT_SYSTEM_PROMPT,
@@ -726,7 +699,7 @@ const Home: React.FC<HomeProps> = ({
     } else {
       setSelectedConversation({
         id: uuidv4(),
-        name: 'گفت و گو جدید ',
+        name: 'گفتوگو جدید ',
         messages: [],
         model: OpenAIModels[defaultModelId],
         prompt: DEFAULT_SYSTEM_PROMPT,
