@@ -289,6 +289,8 @@ const Home: React.FC<HomeProps> = ({
   // FETCH MODELS ----------------------------------------------
 
   const fetchModels = async (key: string) => {
+    //xxxxxxx
+    return true;
     const error = {
       title: t('Error fetching models.'),
       code: null,
@@ -870,7 +872,7 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   let serverSidePluginKeysSet = false;
 
   const googleApiKey = process.env.GOOGLE_API_KEY;
-  const googleCSEId = process.env.GOOGLE_CSE_ID;
+  const googleCSEId = process.env.GOOGLE_API_KEY;
 
   if (googleApiKey && googleCSEId) {
     serverSidePluginKeysSet = true;
