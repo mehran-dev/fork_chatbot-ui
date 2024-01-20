@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    font-family: var(--font-yekanBakh);
-  }
-
   html {
     background: #202123;
 
     font-family: var(--font-yekanBakh) !important ;
   }
-  html:lang(en) {
+  * {
+    font-family: var(--font-yekanBakh);
+  }
+
+  *:lang(en) {
     font-family: var(--font-roboto) !important ;
   }
 }

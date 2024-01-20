@@ -738,8 +738,8 @@ const Home: React.FC<HomeProps> = ({
   return (
     <>
       <Head>
-        <title>چتبات هما </title>
-        <meta name="description" content="homa , ChatGPT but better." />
+        <title>چت بات هما </title>
+        <meta name="description" content="HOMA , ChatGPT but better." />
         <meta
           name="viewport"
           content="height=device-height ,width=device-width, initial-scale=1, user-scalable=no"
@@ -788,7 +788,7 @@ const Home: React.FC<HomeProps> = ({
                   className="fixed top-5 right-[270px] z-50 h-7 w-7 hover:text-gray-400 ltr:left-[270px] dark:text-white dark:hover:text-gray-300 sm:top-0.5 sm:right-[270px] sm:h-8   sm:w-8 sm:text-neutral-700 ltr:sm:left-[270px]"
                   onClick={handleToggleChatbar}
                 >
-                  <IconArrowBarRight className="bg-yellow-500" />
+                  <IconArrowBarRight className="" />
                 </button>
                 <div
                   onClick={handleToggleChatbar}
@@ -800,7 +800,7 @@ const Home: React.FC<HomeProps> = ({
                 className="fixed top-2.5 right-4 z-50 h-7 w-7 text-white hover:text-gray-400 dark:text-white dark:hover:text-gray-300 sm:top-0.5 sm:left-4 sm:h-8 sm:w-8 sm:text-neutral-700"
                 onClick={handleToggleChatbar}
               >
-                <IconArrowBarLeft className="bg-red-500" />
+                <IconArrowBarLeft className="" />
               </button>
             )}
 
