@@ -1,3 +1,4 @@
+import ChangeLanguage from '@/components/ChangeLanguage/ChangeLanguage';
 import { Chat } from '@/components/Chat/Chat';
 import { Chatbar } from '@/components/Chatbar/Chatbar';
 import { Navbar } from '@/components/Mobile/Navbar';
@@ -34,8 +35,10 @@ import { GetServerSideProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+
 import { v4 as uuidv4 } from 'uuid';
 
 interface HomeProps {
@@ -49,9 +52,8 @@ const Home: React.FC<HomeProps> = ({
   serverSidePluginKeysSet,
   defaultModelId,
 }) => {
-  const { t } = useTranslation('chat');
-  const { i18n } = useTranslation();
-
+  const { t, i18n } = useTranslation('chat');
+  const router = useRouter();
   // STATE ----------------------------------------------
 
   const [apiKey, setApiKey] = useState<string>('');
@@ -829,21 +831,14 @@ const Home: React.FC<HomeProps> = ({
           </div>
         </main>
       )}
-      {/* <button
-        className="bg-green-800 text-white"
-        onClick={() => {
-          i18n.changeLanguage('fa');
-        }}
-      >
-        TEST LANG
-      </button> */}
+      {/* <ChangeLanguage newLang="fa" /> */}
     </>
   );
 };
 export default Home;
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
-  console.log('locale', locale);
+  console.log('locale in getServerSideProps', locale);
 
   const defaultModelId =
     (process.env.DEFAULT_MODEL &&
