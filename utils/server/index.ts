@@ -23,17 +23,16 @@ export class OpenAIError extends Error {
 
 const mockedFetch = async (url: string, options: any) => {
   const simulatedData = [
-    '{"choices":[{"delta":{"content":"Your mocked response here"}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content۱ "}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content۲ "}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content ۳ "}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content  ۴ "}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content ۵"}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content ۶ "}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content ۷ ۷"}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content ۸ ۸ "}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content ۹ ۹ ۹"}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content 10 10  01"}}]}',
+    '{"choices":[{"delta":{"content":"ما در حال پاسخ گویی به شما هستیم "}}]}',
+    '{"choices":[{"delta":{"content":" ما داریم اینجا زحمت می کشیم "}}]}',
+    '{"choices":[{"delta":{"content":"تو داری پاسخ ما رو در یافت می کنی "}}]}',
+    '{"choices":[{"delta":{"content":"توجه توجه "}}]}',
+    '{"choices":[{"delta":{"content":"این سور سنت استریمینگ است "}}]}',
+    '{"choices":[{"delta":{"content":"  که هما تی پی از آن استفاده می کند "}}]}',
+    '{"choices":[{"delta":{"content":"در حال اتمام سوخت هستیم "}}]}',
+    '{"choices":[{"delta":{"content":"موتور خاموش شد "}}]}',
+    '{"choices":[{"delta":{"content":"بانوشتن کلمه دان به انگلیسی چت پایان می یابد "}}]}',
+    '{"choices":[{"delta":{"content":"اوووه به خدا حافظی سلام کن "}}]}',
     '{"choices":[{"delta":{"content":"DONE"}}]}',
   ];
 
@@ -48,7 +47,7 @@ const mockedFetch = async (url: string, options: any) => {
           await new Promise((resolve) => {
             setTimeout(() => {
               resolve(1); // Resolve the promise after the timeout
-            }, 1000);
+            }, 1500);
           });
           controller.enqueue(new TextEncoder().encode(chunk));
         }
