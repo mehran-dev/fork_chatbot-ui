@@ -24,18 +24,32 @@ export class OpenAIError extends Error {
 const mockedFetch = async (url: string, options: any) => {
   const simulatedData = [
     '{"choices":[{"delta":{"content":"Your mocked response here"}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content"}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content۱ "}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content۲ "}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content ۳ "}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content  ۴ "}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content ۵"}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content ۶ "}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content ۷ ۷"}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content ۸ ۸ "}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content ۹ ۹ ۹"}}]}',
+    '{"choices":[{"delta":{"content":"More mocked content 10 10  01"}}]}',
+    '{"choices":[{"delta":{"content":"DONE"}}]}',
   ];
 
   return {
     ok: true,
     // json: async () => ({ answer: 'Mocked assistant response' }), // Adjust the response as needed
     body: new ReadableStream({
-      start(controller) {
+      async start(controller) {
         // Simulate streaming data
         for (const chunk of simulatedData) {
           console.log('chunk from mockedFetch', chunk);
-
+          await new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(1); // Resolve the promise after the timeout
+            }, 1000);
+          });
           controller.enqueue(new TextEncoder().encode(chunk));
         }
         controller.close();
@@ -109,16 +123,24 @@ export const OpenAIStream = async (
       console.log('Parser====++++++++++++++++', parser);
 
       for await (const chunk of res.body as any) {
-        console.log(
-          '___________________ decoder.decode(chunk)',
-          decoder.decode(chunk),
-        );
-
         try {
-          parser.feed(decoder.decode(chunk));
-          console.log(777);
-        } catch (error) {
-          console.log(error);
+          const jix: any = JSON.parse(decoder.decode(chunk));
+          console.log('___________________ jix____________', typeof jix, jix);
+
+          const text = jix.choices[0].delta.content;
+          console.log(
+            '&&&&&&&&&&&&&&&&&&&&',
+            text,
+            '&&&&&&&&&&&&&&&&&&&&&&&&&&&&',
+          );
+
+          if (text === 'DONE') {
+            controller.close();
+          }
+          const queue = encoder.encode(text);
+          controller.enqueue(queue);
+        } catch (e) {
+          controller.error(e);
         }
       }
     },
