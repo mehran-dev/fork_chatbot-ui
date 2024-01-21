@@ -21,36 +21,13 @@ export class OpenAIError extends Error {
   }
 }
 
-const mockedFetch = async (url: string, options: any) => {
-  const simulatedData = [
-    '{"choices":[{"delta":{"content":"Your mocked response here"}}]}',
-    '{"choices":[{"delta":{"content":"More mocked content"}}]}',
-  ];
-
-  return {
-    ok: true,
-    // json: async () => ({ answer: 'Mocked assistant response' }), // Adjust the response as needed
-    body: new ReadableStream({
-      start(controller) {
-        // Simulate streaming data
-        for (const chunk of simulatedData) {
-          console.log('chunk from mockedFetch', chunk);
-
-          controller.enqueue(new TextEncoder().encode(chunk));
-        }
-        controller.close();
-      },
-    }),
-  };
-};
-
 export const OpenAIStream = async (
   model: OpenAIModel,
   systemPrompt: string,
   key: string,
   messages: Message[],
 ) => {
-  const res = await mockedFetch(`${OPENAI_API_HOST}/v1/chat/completions`, {
+  const res = await fetch(`${OPENAI_API_HOST}/v1/chat/completions`, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${key ? key : process.env.OPENAI_API_KEY}`,
@@ -76,18 +53,30 @@ export const OpenAIStream = async (
 
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
-  // console.log('__________ before streaming ', res);
+
+  if (res.status !== 200) {
+    const result = await res.json();
+    if (result.error) {
+      throw new OpenAIError(
+        result.error.message,
+        result.error.type,
+        result.error.param,
+        result.error.code,
+      );
+    } else {
+      throw new Error(
+        `OpenAI API returned an error: ${
+          decoder.decode(result?.value) || result.statusText
+        }`,
+      );
+    }
+  }
 
   const stream = new ReadableStream({
     async start(controller) {
-      console.log('START is calllllllllllllllllllllllllllllled ', controller);
-
       const onParse = (event: ParsedEvent | ReconnectInterval) => {
-        console.log('ON PARSER event is : ', event);
-
         if (event.type === 'event') {
           const data = event.data;
-          console.log('DATA ----->>>>', data);
 
           if (data === '[DONE]') {
             controller.close();
@@ -106,24 +95,12 @@ export const OpenAIStream = async (
       };
 
       const parser = createParser(onParse);
-      console.log('Parser====++++++++++++++++', parser);
 
       for await (const chunk of res.body as any) {
-        console.log(
-          '___________________ decoder.decode(chunk)',
-          decoder.decode(chunk),
-        );
-
-        try {
-          parser.feed(decoder.decode(chunk));
-          console.log(777);
-        } catch (error) {
-          console.log(error);
-        }
+        parser.feed(decoder.decode(chunk));
       }
     },
   });
-  console.log('---return stream ----');
 
   return stream;
 };

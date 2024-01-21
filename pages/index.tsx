@@ -92,6 +92,7 @@ const Home: React.FC<HomeProps> = ({
     if (!selectedConversation) {
       return;
     }
+
     let updatedConversation: Conversation;
 
     if (deleteCount) {
@@ -195,6 +196,7 @@ const Home: React.FC<HomeProps> = ({
         const chunkValue = decoder.decode(value);
 
         text += chunkValue;
+        console.log(text, chunkValue);
 
         if (isFirst) {
           isFirst = false;
